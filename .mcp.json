@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "helm-docs": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "mcp-helm-documentation"
+      ]
+    }
+  }
+}
