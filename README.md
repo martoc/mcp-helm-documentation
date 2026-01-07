@@ -50,6 +50,19 @@ Add to your `.mcp.json` or global settings:
   "mcpServers": {
     "helm-docs": {
       "command": "docker",
+      "args": ["run", "-i", "--rm", "martoc/mcp-helm-documentation:latest"]
+    }
+  }
+}
+```
+
+For a locally built Docker image:
+
+```json
+{
+  "mcpServers": {
+    "helm-docs": {
+      "command": "docker",
       "args": ["run", "-i", "--rm", "mcp-helm-documentation"]
     }
   }
