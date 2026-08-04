@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-import frontmatter  # type: ignore[import-untyped]
+import frontmatter
 
 from mcp_helm_documentation.models import Document, DocumentMetadata
 
@@ -40,7 +40,7 @@ class DocumentParser:
                 url=url,
                 sidebar_position=metadata.sidebar_position,
             )
-        except Exception:
+        except Exception:  # noqa: BLE001
             return None
 
     def _extract_metadata(self, metadata: dict[str, object]) -> DocumentMetadata:
