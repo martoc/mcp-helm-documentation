@@ -102,14 +102,16 @@ import DocCardList from '@theme/DocCardList';
             assert database.get_document_count() == 1
 
             # Mock git clone to avoid actual network call
-            with patch.object(indexer, "_clone_repository"):
-                with patch.object(indexer, "_index_directory", return_value=5) as mock_index:
-                    # Create a mock temp directory with docs
-                    mock_index.return_value = 5
-                    database.clear()  # Simulate rebuild clearing
-                    mock_index(docs_path)
+            with (
+                patch.object(indexer, "_clone_repository"),
+                patch.object(indexer, "_index_directory", return_value=5) as mock_index,
+            ):
+                # Create a mock temp directory with docs
+                mock_index.return_value = 5
+                database.clear()  # Simulate rebuild clearing
+                mock_index(docs_path)
 
-                    assert database.get_document_count() == 0  # Cleared by rebuild
+                assert database.get_document_count() == 0  # Cleared by rebuild
 
     def test_index_from_path_handles_files_without_frontmatter(self, database: DocumentDatabase) -> None:
         """Test that files without frontmatter are indexed with default title."""
