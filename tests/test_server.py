@@ -3,9 +3,11 @@
 import json
 from unittest.mock import patch
 
+import pytest
+
 from mcp_helm_documentation.database import DocumentDatabase
 from mcp_helm_documentation.models import Document
-from mcp_helm_documentation.server import _read_documentation_impl, _search_documentation_impl
+from mcp_helm_documentation.server import _read_documentation_impl, _search_documentation_impl, run_server
 
 
 class TestSearchDocumentation:
@@ -108,3 +110,38 @@ class TestReadDocumentation:
             assert "section" in parsed
             assert "url" in parsed
             assert "content" in parsed
+
+
+class TestRunServer:
+    """Tests for run_server transport selection."""
+
+    def test_defaults_to_stdio_transport(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that stdio transport is used when MCP_TRANSPORT is unset."""
+        monkeypatch.delenv("MCP_TRANSPORT", raising=False)
+
+        with patch("mcp_helm_documentation.server.mcp.run") as mock_run:
+            run_server()
+
+            mock_run.assert_called_once_with(transport="stdio")
+
+    def test_http_transport_uses_custom_host_and_port(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that MCP_HOST/MCP_PORT are passed through for HTTP transport."""
+        monkeypatch.setenv("MCP_TRANSPORT", "http")
+        monkeypatch.setenv("MCP_HOST", "127.0.0.1")
+        monkeypatch.setenv("MCP_PORT", "9000")
+
+        with patch("mcp_helm_documentation.server.mcp.run") as mock_run:
+            run_server()
+
+            mock_run.assert_called_once_with(transport="http", host="127.0.0.1", port=9000)
+
+    def test_http_transport_defaults_host_and_port(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that HTTP transport falls back to 0.0.0.0:8000 when unset."""
+        monkeypatch.setenv("MCP_TRANSPORT", "http")
+        monkeypatch.delenv("MCP_HOST", raising=False)
+        monkeypatch.delenv("MCP_PORT", raising=False)
+
+        with patch("mcp_helm_documentation.server.mcp.run") as mock_run:
+            run_server()
+
+            mock_run.assert_called_once_with(transport="http", host="0.0.0.0", port=8000)  # noqa: S104

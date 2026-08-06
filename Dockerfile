@@ -28,4 +28,6 @@ RUN uv run --no-sync helm-docs-index index
 
 # Run the MCP server directly from the baked venv so no dependency
 # resolution happens on container start
+EXPOSE 8000
+
 CMD ["/app/.venv/bin/mcp-helm-docs"]
